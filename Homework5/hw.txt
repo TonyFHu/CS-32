@@ -1,0 +1,117 @@
+1a.
+	50
+		20
+			10
+				xx
+				15
+			40
+				30
+					25
+					36
+				xx
+		60
+			xx
+			70
+				65
+				80
+					74
+					xx
+
+1b.
+	in-order:
+		10 15 20 25 30 36 40 50 60 65 70 74 80
+	pre-order:
+		50 20 10 15 40 30 25 36 60 70 65 80 74
+	post-order:
+		15 10 25 36 30 40 20 65 74 80 70 60 50
+
+1c.
+	50
+		15
+			10
+			40
+				25
+					xx
+					36
+				xx
+		60
+			xx
+			70
+				65
+				80
+					74
+					xx
+
+
+2a.
+	class Node
+	{
+	public:
+		Node() : 
+			dataValue(0), 
+			leftNode(nullptr), 
+			rightNode(nullptr), 
+			parentNode(nullptr) {}
+
+		int data() { return dataValue; }
+		Node* left() { return leftNode; }
+		Node* right() { return rightNode; }
+		Node* parent() { return parentNode; }
+
+		void setData(int data) { dataValue = data; }
+		void setLeft(Node* ptr) { leftNode = ptr; }
+		void setRight(Node* ptr) { rightNode = ptr; }
+		void setParent(Node* ptr) { parentNode = ptr; }
+	private:
+		int dataValue;
+		Node* leftNode;
+		Node* rightNode;
+		Node* parentNode;
+	};
+
+2b.
+	if the current node's value is greater than the new node's value and not null
+		recursively call insert on the leftNode
+		if null, create a new node and set leftNode to the new node's address
+			set the new node's parent to this and set the value
+	if the current node's value is less than the new node's value and not null
+		recursively call insert on the rightNode
+		if null, create a new node and set rightNode to the new node's address
+			set the new node's parent to this and set the value
+
+3a.
+	8
+		3
+			0
+			2
+		6
+			4
+			x
+
+3b.
+	{8, 3, 6, 0, 2, 4}
+
+3c.
+	{6, 3, 4, 0, 2}
+
+
+4a.
+	O(C + S)
+4b.
+	O(log C + S)
+4c.
+	O(log CS)
+4d.
+	O(log S)
+4e.
+	O(1)
+4f.
+	O(log C + S)
+4g.
+	O(S*log S)
+4h.
+	O(C*log S)
+
+
+
+

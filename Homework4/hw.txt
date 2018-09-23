@@ -1,0 +1,87 @@
+2. The insert function calls doInsertOrUpdate, which calls find. Find compares the key values using the '!=' operator, but the Coord class doesn't have a defined '!=' operator, so it would fail in that case.
+
+3. The second parameter keeps track of the path used to get to the current 'node.' Without it, the only information each call to listAll would have would be the class itself. The sequence of calls leading up to the call isn't stored.
+
+4a. const int N = some value;								
+	bool hasCommunicatedWith[N][N];
+	...
+	int numIntermediaries[N][N];
+	for (int i = 0; i < N; i++)					O(N^3)
+	{
+	    numIntermediaries[i][i] = -1;  					O(1)
+				           
+	    for (int j = 0; j < N; j++)						O(N^2)
+	    {
+	        if (i == j)								O(1)
+	            continue;								O(1)
+	        numIntermediaries[i][j] = 0;						O(1)
+	        for (int k = 0; k < N; k++)						O(N)
+	        {
+	            if (k == i  ||  k == j)							O(1)
+	                continue;								O(1)
+		    if (hasCommunicatedWith[i][k]  &&  hasCommunicatedWith[k][j])		O(1)
+	        	numIntermediaries[i][j]++;						O(1)
+	        }
+	    }
+	}
+	O(N^3)
+
+4b. const int N = some value;
+	bool hasCommunicatedWith[N][N];
+	...
+	int numIntermediaries[N][N];						________
+	for (int i = 0; i < N; i++)							|
+	{										|
+	    numIntermediaries[i][i] = -1;  						| O(N * (N(N-1)/2) ) -> O(N^3)
+				           						|
+	    for (int j = 0; j < i; j++) 					________|
+	    
+	        numIntermediaries[i][j] = 0;						O(1)
+	        for (int k = 0; k < N; k++)						O(N)
+	        {
+	            if (k == i  ||  k == j)							O(1)
+	                continue;								O(1)
+		    if (hasCommunicatedWith[i][k]  &&  hasCommunicatedWith[k][j])		O(1)
+	        	numIntermediaries[i][j]++;						O(1)
+	        }
+	        numIntermediaries[j][i] = numIntermediaries[i][j];			O(1)
+	    }
+	}
+	still O(N^3)
+
+5. bool combine(const Map& m1, const Map& m2, Map& result)
+{
+    const Map* bigger;
+    const Map* smaller;
+    if (m1.size() >= m2.size())
+    {
+        bigger = &m1;
+        smaller = &m2;
+    }
+    else
+    {
+        bigger = &m2;
+        smaller = &m1;
+    }
+
+    bool status = true;
+    Map res(*bigger);         									O(N)    
+    for (int n = 0; n < smaller->size(); n++)  // for each pair in smaller			Will run N times -> O(N^2)
+    {
+        KeyType k;
+        ValueType vsmall;
+        smaller->get(n, k, vsmall);								get(3 arguments) is O(N) (O(N/4))? 
+        ValueType vbig;
+        if (!res.get(k, vbig))      // key in smaller doesn't appear in bigger			get(2 arguments) is O(N) (O(N/2))
+            res.insert(k, vsmall);  //     so add it to res				?	O(N)
+        else if (vbig != vsmall)    // same key, different value				O(1)
+        {                           //     so pair shouldn't be in res
+            res.erase(k);      									O(N)
+            status = false;									O(1)
+        }
+    }
+    result.swap(res);										O(1)
+    return status;
+}
+O(N^2)
+

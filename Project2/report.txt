@@ -1,0 +1,238 @@
+The map contains a size and head pointer, which points to the first node in the linked list. The linked list itself is made of nodes that each hold a key, value, pointer to the next node, and pointer to the previous node. The linked list is not circular; it's terminated on both ends by nullptr. Each new node is added onto the end (opposite the head).
+
+bool combine(m1, m2, result)
+	make a copy (M1) of m1
+	if any key of m2 matches one of M1, check:
+		if the values are equal, do nothing
+		if the values are different, delete the node from M1
+			also, mark the return value as false
+	otherwise, add the key/value as a new node
+	copy M1 into result and return
+
+void subtract(m1, m2, result)
+	make a copy (M1) of m1
+	for every key in m2, (attempt to) erase that node from m1
+	copy M1 into result and return
+
+bool erase(key)
+	look for a node with key
+	if no node, return false
+	otherwise:
+		if the previous node is nullptr (meaning it's the first node)
+			set the head to the next node
+			set the next node's previous node to nullptr (if the next node is not nullptr)
+		otherwise if the next node is nullptr (meaning it's the last node and not the only node)
+			set the previous node's next node to nullptr
+		otherwise (not first or last)
+			set the previous node's next node to the next node
+			set the next node's previous node to the previous node
+		delete the node and return true
+
+
+TESTS:
+
+	Map map;
+	std::string test = "hi";
+	std::string test1 = "hello";
+	double test2 = 10;
+	double test3 = 22;
+	double test4;
+	double test5;
+	assert(map.empty()); 											//test empty
+	assert(map.insert(test1, test2) && !map.empty() && test2 == 10); 					//test insert and empty
+	assert(map.size() == 1); 										//test size
+	assert(!map.insert(test1, test3) && map.size() == 1 && test1 == "hello" && test3 == 22);		//test insert and size
+	assert(map.size() == 1);										//redundant size test
+	assert(map.insert(test, test3) && map.size() == 2);							//test insert and size
+	assert(map.get(test1, test4) && test4 == 10);								//test get
+	assert(map.contains(test) && map.contains(test1) && !map.contains("hey"));				//test contains
+	assert(map.update(test1, test3) && map.get(test1, test4) && test4 == 22);				//test update and get
+	assert(!map.update("hey", test4) && test4 == 22);							//test update
+	assert(map.insertOrUpdate("hey", test4 / 2) && map.size() == 3 && map.get("hey", test5) && test5 == 11);//test insertOrUpdate, size, and get
+	assert(map.insert("sup", 100));										//test insert
+	assert(map.insert("yo", 50) && map.size() == 5);							//test insert and size
+	assert(map.insert("waddup", 17) && map.size() == 6);							//test insert and size
+	assert(map.insertOrUpdate("yo", 40) && map.get("yo", test5) && test5 == 40);				//test insertOrUpdate and get
+	assert(map.insertOrUpdate("waddup", test5) && map.size() == 6 && test5 == 40);				//test insertOrUpdate and size
+	assert(map.erase("waddup") && map.size() == 5);								//test erase (middle node) and size
+	assert(map.erase(test1) && map.size() == 4);								//test erase (first node) and size
+	assert(!map.get(test1, test5) && test5 == 40);								//test get
+	assert(map.contains(test) && map.contains("sup") && map.contains("hey") && map.contains("yo") && !map.contains(test1));	//test contains
+	assert(map.insertOrUpdate("yo", test4) && map.get("yo", test5) && test5 == 22);				//test insertOrUpdate and get
+	assert(map.insertOrUpdate("nihao", 8888));								//test insertOrUpdate
+	assert(map.insert("konnichiwa", 4));
+
+	Map mep;
+	assert(mep.empty() && mep.size() == 0);									//test empty and size
+	map.swap(mep);												//swap
+	assert(map.insertOrUpdate("konnichiwa", 4));								//test insertOrUpdate
+	assert(mep.insertOrUpdate("salamat pagi", 99));								//test insertOrUpdate
+	assert(mep.get("sup", test5)) && !map.get("sup", test5));						//test (swap) and get
+	assert(mep.size() == 7 && map.size() == 1);								//test (swap) and size
+	mep.swap(map);												//swap
+	assert(map.size() == 7 && mep.size() == 1);								//test (swap) and size
+	assert(map.contains("salamat pagi"));									//test (swap) and contains
+	assert(!mep.contains("salamat pagi"));									//test (swap) and contains
+	assert(!mep.erase("salamat pagi"));									//test erase
+
+	assert(map.erase("hi"));										//test erase (first node)
+	assert(map.erase("sup"));										//test erase
+	assert(map.erase("hey"));										.....
+	assert(map.erase("yo"));										.....
+	assert(map.erase("nihao"));										.....
+	assert(map.erase("konnichiwa"));									.....
+	assert(map.erase("salamat pagi"));									//test erase (last node)
+	assert(map.size() == 0 && map.empty());									//test size and empty
+	double four;
+	assert(mep.get("konnichiwa", four) && four == 4 && mep.size() == 1);					//test get
+	assert(mep.erase("konnichiwa") && map.size() == 0 && map.empty());					//test erase
+
+
+	Map a;													//tests on insert and swap
+	a.insert("one", 1);
+	a.insert("two", 2);
+	a.insert("three", 3);
+	a.insert("four", 4);
+	a.insert("five", 5);
+	a.insert("six", 6);
+	a.swap(a);
+
+
+	Map a;		//pretend this isn't the same map as above												
+	a.insert("Fred", 123);
+	a.insert("Ethel", 456);
+	a.insert("Lucy", 789);
+
+	Map b;
+	b.insert("Lucy", 789);
+	b.insert("Ricky", 321);
+	b.insert("Ethel", 654);
+
+	Map c;
+	c.insert("test", 111);
+	c.insert("test1", 1111);
+	c.insert("delete", 0);
+	c.insert("delet", -1);
+	c.insert("", 0);
+
+	if(combine(a, b, c))											//test combine with various combinations
+	/*(a,a,a) (a,b,a) (a,b,b) (c,a,c)*/
+		print(c);
+	else {
+		print(c);
+		cout << "false" << endl;
+	}
+		
+	subtract(a, b, c);											//test subtract with various combinations
+	/*(a,a,a) (a,b,a) (a,b,b) (c,a,c)*/
+	print(c);
+
+
+	double value = 0;											//some more tests
+	std::string key = "";
+	Map a;
+	Map b = a;
+	Map c;
+	assert(a.empty() && a.size() == 0);
+	assert(!a.erase("One") && a.empty());
+	assert(!a.get("One", value));
+	assert(!a.update("One", 0));
+	assert(!a.contains("One"));
+	assert(a.insert("One", 1));
+	assert(a.contains("One"));
+	assert(!a.contains("NotInList"));
+	assert(a.get(0, key, value) && key == "One" && value == 1);
+	assert(!a.get(1, key, value) && key == "One" && value == 1);
+	assert(!a.get("NotInList", value) && value == 1);
+	assert(!a.erase("NotInList"));
+	value = 0;
+	assert(a.get(key, value) && value == 1);
+	assert(a.update("One", 11));
+	assert(a.get(key, value) && value == 11);
+	assert(a.insertOrUpdate("One", 1));
+	assert(a.get(key, value) && value == 1);
+	assert(a.erase("One") && a.empty() && a.size() == 0);
+	assert(!a.contains("One") && !a.erase("One"));
+	assert(!a.get(0, key, value) && key == "One" && value == 1);
+	assert(a.insertOrUpdate("One", 1) && !a.empty() && a.size() == 1);
+	assert(a.insertOrUpdate("Two", 2));
+	assert(a.size() == 2 && !a.empty());
+	assert(a.get(1, key, value) && key == "Two" && value == 2);
+	value = 0;
+	assert(a.get(key, value) && value == 2);
+	assert(a.contains("Two"));
+	c = a;
+	assert(a.erase("Two"));
+	assert(!a.get(1, key, value) && key == "Two" && value == 2);
+	assert(a.size() == 1);
+	assert(a.erase("One") && a.empty());
+
+	assert(c.size() == 2 && !c.empty());
+	assert(c.get(0, key, value) && key == "One" && value == 1);
+	assert(c.contains("Two"));
+
+	assert(b.empty() && b.size() == 0);
+	assert(!b.contains("NotInList"));
+	assert(!b.erase("NotInList") && b.size() == 0);
+	assert(b.insert("One", 1) && b.size() == 1);
+	assert(b.erase("One") && b.size() == 0);
+	c.swap(b);
+	
+	Map d = b;
+	assert(c.size() == 0 && b.size() == 2);
+	assert(b.get(1, key, value) && key == "Two" && value == 2);
+	assert(!c.contains("One") && !c.contains("Two"));
+	assert(b.erase("One") && b.size() == 1);
+	assert(!b.get(1, key, value));
+	assert(b.get(0, key, value) && key == "Two" && value == 2);
+	assert(!b.contains("One") && b.contains("Two"));
+	b = d;
+	assert(c.size() == 0 && b.size() == 2);
+	assert(b.get(1, key, value) && key == "Two" && value == 2);
+	assert(!c.contains("One") && !c.contains("Two"));
+	assert(b.erase("One") && b.size() == 1);
+	assert(!b.get(1, key, value));
+	assert(b.get(0, key, value) && key == "Two" && value == 2);
+	assert(!b.contains("One") && b.contains("Two"));
+
+
+	Map m1;													//given tests on insert, swap, and contains
+	m1.insert("Fred", 2.956);
+	Map m2;
+	m2.insert("Ethel", 3.538);
+	m2.insert("Lucy", 2.956);
+	m1.swap(m2);
+	assert(m1.size() == 2 && m1.contains("Ethel") && m1.contains("Lucy") &&
+	m2.size() == 1 && m2.contains("Fred"));
+	
+	Map a;													//from here down, given tests on insert, swap
+	Map b;													//get, and size
+	Map c;
+	KeyType k[6] = { "one", "two", "three", "four", "five", "six" };
+	ValueType v = 10;
+
+	// No failures inserting pairs with 5 distinct keys into b
+	for (int n = 0; n < 5; n++)
+	assert(b.insert(k[n], v));
+
+	assert(b.insert(k[5], v));
+
+
+	// When two Maps' contents are swapped, their capacities are swapped
+	// as well:
+	a.swap(b);
+	assert(!a.insert(k[5], v) && b.insert(k[5], v));
+
+
+	Map m;  // maps strings to doubles
+	assert(m.empty());
+	ValueType j = -1234.5;
+	assert(!m.get("abc", j) && j == -1234.5); // v unchanged by get failure
+	assert(m.insert("xyz", 9876.5));
+	assert(m.size() == 1);
+	KeyType l = "hello";
+	assert(m.get(0, l, j) && l == "xyz"  &&  j == 9876.5);
+
+
+	and the other tests provided on the class site
+	

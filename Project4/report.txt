@@ -1,0 +1,33 @@
+1. As far as I know, everything works
+
+2.
+MyHash is implemented using an array and a linked list for each bucket
+	associate(...)
+		locate bucket by hashing the key
+		look for a matching key
+			add a new node to the linked list in the corresponding bucket if no match is found
+			if a match is found, update the node's value
+
+	resize(...)
+		allocate new array 2* previous size
+		iterate through old array/linked list and rehash key and copy new node into correct place
+		delete old stuff and update necessary values
+
+Tokenizer has a MyHash object that stores all the separators
+	tokenize(...)
+		for each character in the message:
+			if the character is not found in the MyHash object, add the char to a string
+			if the character is found in the MyHash object, consider the current string to be a token if it has at least one char
+				reset the current string after storing it
+
+WordList contains two MyHash objects, one that simply stores the existence of words, and the other maps patterns against a list of words
+	findCandidates(...)
+		get all words with matching patterns simply by looking it up in the pattern-'indexed' hash map.
+		compare characters against each other, and if they violate the requirements, remove the word from the list
+
+Translator has a linked list of Nodes, which each store a MyHash object as data. Translator also has two MyHash pointers itself; a map and the reverse map
+
+Decrypter has a Translator, Wordlist, and Tokenizer object
+
+
+3. I believe I've almost met all the time complexity requirements... For loadWordList, I didn't understand how to know to skip a duplicate word without checking it first, so my loadWordList function is O(N), where N is the number of words

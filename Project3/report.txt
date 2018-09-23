@@ -1,0 +1,109 @@
+class Actor
+	StudentWorld* getWorld()
+		returns the pointer to the StudentWorld since most derived classes need access to the StudentWorld for collision checking/etc (because StudentWorld holds all the actors). Not virtual since no derived class needs to override its functionality.
+	virtual bool isEnemy()
+		returns whether or not the Actor is an enemy. As defined in Actor, returns false, but is overriden in Enemy to return true, as such, needs to be defined virtual.
+	virtual bool isProjectile()
+		returns whether or not the Actor is a Projectiles. As defined in Actor, returns false, but is overriden in Projectiles to return true, as such, needs to be defined virtual.
+	virtual bool isGoody()
+		returns whether or not the Actor is a Goody. As defined in Actor, returns false, but is overriden in Goody to return true, as such, needs to be defined virtual.
+	bool done()
+		returns the bool 'status' contained in Actor. Functionality remains the same for any derived class, so there is no need to be defined virtual.
+	void setStatus()
+		set the member bool 'status' to the bool passed as an argument. Functionality remains the same for any derived class, so there is no need to be defined virtual.
+	bool deadOrOffscreen()
+		if done() returns true, then return true, otherwise if the object is offscreen, setStatus(true) and return true. Return false if neither dead nor offscreen. Functionality remains the same for any derived class, so there is no need to be defined virtual.
+	void move()
+		calls GraphObject::moveTo(), but takes in relative change in coordinates rather than absolute coordinates. Functionality remains the same for any derived class, so there is no need to be defined virtual.
+	virtual void doSomething() = 0;
+		Pure virtual since, 1)prevent creation of just Actor objects and 2)each derived class can do something and they all do different things.
+
+class Explosion : public Actor (bottom? subclass)
+	[virtual] void doSomething()
+		increase the size of the explosion if the lifetime member is greater than 0 and decrement lifetime. Once lifetime reaches 0, set the status of the explosion to true.
+
+class Star : public Actor (bottom? subclass)
+	[virtual] void doSomething()
+		move to the left by one unit and if the X-coord is less than 0, set status to true.
+
+class Ship : public Actor
+	int getHP()
+		returns member variable storing health value. Is in Ship because only ships need an hp value. Not defined virtual since the functionality remains the same for all derived classes.
+	int getMaxHP()
+		returns member variable storing max health value. Is in Ship, even though only the NachenBlaster calls the function, because it just makes sense to put it with the other hp-related function/member. Not in a superclass because only ships could have a max hp value. Not defined virtual since the functionality remains the same for all derived classes.
+	void alterHP()
+		change the member variable storing health by the amount passed as the argument. Is in Ship because only ships need an hp value. Not defined virtual since the functionality remains the same for all derived classes.
+	virtual void doSomething() = 0;
+		Pure virtual since, 1)prevent creation of just Ship objects and 2)each derived class can do something and they all do different things.
+
+class NachenBlaster : public Ship (bottom? subclass)
+	int getCP()
+		returns the member variable storing cabbage points. Is in NachenBlaster because only the NachenBlaster needs cabbage points.
+	int getMaxCP()
+		returns the member variable storing max cabbage points. Is in NachenBlaster because only the NachenBlaster needs to know the max cabbage points.
+	void alterCP()
+		changes the member variable storing cabbage points by the amount passed as the argument. Is in NachenBlaster because NachenBlaster has the cabbage points.
+	void addAmmo()
+		changes the member variable storing the number of torpedoes by the amount passed as the argument. It is in NachenBlaster because only the NachenBlaster has any regard for ammo.
+	int ammo()
+		returns the member variable storing the number of torpedoes. Is in NachenBlaster because NachenBlaster has the member variable storing the number of torpedoes.
+	void doSomething()
+		recover one cabbage point, up to getMaxCP() and then move/shoot based on key input
+
+class Enemy : public Ship
+	int flightLength()
+		returns the member variable storing the flight length
+	int flightplan()
+		returns the member variable storing the flight plan
+	int pointValue()
+		returns the member variable storing the points the Enemy is worth
+	int crashValue()
+		returns the member variable storing the amount of damage an alien deals when colliding with the player
+	void setFlightSpeed()
+		sets the member variable storing the Enemy's speed to the value of the argument passed in
+	void setFlightplan()
+		sets the member variable storing the Enemy's flight plan to the value of the argument passed in
+	void setFlightLength()
+		sets the member variable storing the Enemy's flight length to the value of the argument passed in
+	void moveAlongPath()
+		moves the Enemy along its flight path and decrements the flight length. All enemy movement can be covered by this function
+	bool fire()
+		attempts to fire either a torpedo or turnip depending on the type of enemy. Returns true if fired, false otherwise
+
+class Projectiles : public Actor
+	int getTeam()
+		returns the member variable storing the team ID
+	int getDamageValue()
+		returns the member variable storing the damage value of the projectile
+	[virtual] bool isProjectile()
+		returns true, overriding Actor's implementation
+	[virtual] void doSomething()
+		handles moving the projectiles and checks collision
+
+class Goody : public Actor
+	[virtual] bool isGoody()
+		returns true, overriding Actor's implementation
+	int getID()
+		returns the member variable storing the Goody's ID
+	[virtual] void doSomething()
+		handles moving the Goody and checks collision
+
+class StudentWorld
+	bool collision()
+		handles all the collisions; takes in the object checking and then checks it against anything else it should be checked against
+	void newActor()
+		adds the passed in Actor* to the member vector of Actors*
+	bool isClose()
+		returns true if the passed in Actor is within a certain number of units in the Y-direction of the player and is also to the right
+
+	
+
+All the functionality should be finished. Whether it's done correctly is another question.
+
+Assumptions:
+	Attempt at star/enemy spawn should be done after giving each actor a chance to do something (in order to appease part of the sanity checker)
+	Assumed X and Y coordinates (of Stars) could be non-integers
+		Caused p3sanity to fail...
+	Do not call doSomething on objects creating during the current tick
+	
+Classes tested by creating them and playing it, comparing it against the sample. Use the tick-by-tick functionality to see if the collision/destruction works the same way. Used a lot of cerr << ... to make sure the correct things were happening in the correct order, etc.
